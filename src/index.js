@@ -43,6 +43,11 @@ app.get("/services", (req, res)=>{
   res.render("services");
 })
 
+app.use((req, res) => {
+  res.render("404");
+});
+
+
 app.listen(port, ()=>{
 
     console.log("Server on port 3000");
