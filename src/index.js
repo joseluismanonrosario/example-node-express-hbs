@@ -4,6 +4,8 @@ const path = require("path");
 
 const app = express();
 
+const port = process.env.PORT || 3000;
+
 app.set("views", path.join(__dirname, "views"));
 app.engine(
   ".hbs",
@@ -41,7 +43,7 @@ app.get("/services", (req, res)=>{
   res.render("services");
 })
 
-app.listen(3000, ()=>{
+app.listen(port, ()=>{
 
     console.log("Server on port 3000");
 });
