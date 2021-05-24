@@ -1,12 +1,17 @@
 const express = require ("express");
 const exphbs = require ("express-handlebars");
 const path = require("path");
+const config = require('./config/config');
+
+const Clientes = require ('./models/clientes');
+
 
 const app = express();
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || config.app.port;
 
 app.set("views", path.join(__dirname, "views"));
+
 app.engine(
   ".hbs",
   exphbs({
@@ -16,12 +21,11 @@ app.engine(
     extname: ".hbs",
   })
 );
+
 app.set("view engine", ".hbs");
 
-
 app.use(express.static(path.join(__dirname, "public")));
-
-
+app.use(express.urlencoded({ extended: false }));
 
 app.get("/", (req, res)=>{
     res.render("index");
@@ -33,6 +37,20 @@ app.get("/about", (req, res)=>{
 
 app.get("/contact", (req, res)=>{
   res.render("contact");
+});
+
+app.post("/contact", async (req, res)=>{
+  try {
+    const {name, email, phone, company } = req.body;
+    await Clientes.create({name, email, phone, company});
+    const clientesDB = await Clientes.find();
+    res.send(clientesDB);
+
+  } catch (error) {
+    console.log('error fatal');
+  }
+  console.log(req.body);
+  
 });
 
 app.get("/works", (req, res)=>{
