@@ -50,6 +50,15 @@ app.use(helmet());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
 
+app.get('/*', function (req, res, next) {
+
+  if (req.url.indexOf("/assets/img/") === 0 || req.url.indexOf("/assets/css/") === 0) {
+    res.setHeader("Cache-Control", "public, max-age=2592000"); //2592000 en minutos equivale a 30 dias
+    res.setHeader("Expires", new Date(Date.now() + 2592000000).toUTCString()); //  2592000000 en milisegundos equivale a 30 dias
+  }
+  next();
+});
+
 app.get("/", (req, res)=>{
     res.render("index");
 });
