@@ -47,19 +47,26 @@ app.set("view engine", ".hbs");
 
 app.use(limiter);
 app.use(helmet());
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
 
-app.get('/*', function (req, res, next) {
+app.use(express.static(__dirname + '/public', {
+  maxAge: 2592000, //2592000 en minutos equivale a 30 dias
+  setHeaders: function(res, path) {
+      res.setHeader("Expires", new Date(Date.now() + 2592000000).toUTCString());//2592000000 en milisegundos equivale a 30 dias
+    }
+}))
 
-  //if (req.url.indexOf("assets/img/") === 0 || req.url.indexOf("assets/css/") === 0) {
-    console.log("paso por aqui dentro");
-    res.setHeader("Cache-Control", "public, max-age=2592000"); //2592000 en minutos equivale a 30 dias
-    res.setHeader("Expires", new Date(Date.now() + 2592000000).toUTCString()); //  2592000000 en milisegundos equivale a 30 dias
-  //}
-  console.log(req.url);
-  next();
-});
+// app.get('/*', function (req, res, next) {
+
+//   //if (req.url.indexOf("assets/img/") === 0 || req.url.indexOf("assets/css/") === 0) {
+//     console.log("paso por aqui dentro");
+//     res.setHeader("Cache-Control", "public, max-age=2592000"); //2592000 en minutos equivale a 30 dias
+//     res.setHeader("Expires", new Date(Date.now() + 2592000000).toUTCString()); //2592000000 en milisegundos equivale a 30 dias
+//   //}
+//   console.log(req.url);
+//   next();
+// });
 
 app.get("/", (req, res)=>{
     res.render("index");
