@@ -1,9 +1,30 @@
 const express = require ("express");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
 const exphbs = require ("express-handlebars");
 const path = require("path");
 const config = require('./config/config');
-
+const nodemailer = require('nodemailer');
 const Clientes = require ('./models/clientes');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+const transport=nodemailer.createTransport({
+  host:'smtp.gmail.com',
+  port:465,
+  secure:true,
+  auth:{
+      user:config.mail.user,
+      pass:config.mail.pass
+  }
+})
+
+transport.verify().then(()=>{
+  console.log('Ready to send emails');
+})
 
 
 const app = express();
@@ -24,6 +45,8 @@ app.engine(
 
 app.set("view engine", ".hbs");
 
+app.use(limiter);
+app.use(helmet());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
 
@@ -41,16 +64,31 @@ app.get("/contact", (req, res)=>{
 
 app.post("/contact", async (req, res)=>{
   try {
+
+    await transport.sendMail({
+      from:config.mail.user,
+      to:req.body.email,
+      subject:req.body.subject,
+      html:`<h1>${req.body.message}<\h1>`
+    });
+    console.log('enviado');
+
+  } catch (error) {
+    console.log(error);
+  }
+
+  try {
+
     const {name, email, phone, company } = req.body;
     await Clientes.create({name, email, phone, company});
     const clientesDB = await Clientes.find();
     res.send(clientesDB);
 
   } catch (error) {
-    console.log('error fatal');
+    console.log('error al guardar en base de datos');
   }
   console.log(req.body);
-  
+
 });
 
 app.get("/works", (req, res)=>{
