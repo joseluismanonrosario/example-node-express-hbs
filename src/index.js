@@ -5,6 +5,7 @@ const exphbs = require ("express-handlebars");
 const path = require("path");
 const config = require('./config/config');
 const nodemailer = require('nodemailer');
+const compression = require("compression");
 const Clientes = require ('./models/clientes');
 
 const limiter = rateLimit({
@@ -47,6 +48,7 @@ app.set("view engine", ".hbs");
 
 app.use(limiter);
 app.use(helmet());
+app.use(compression());
 // app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: false }));
 
